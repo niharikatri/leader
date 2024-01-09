@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leads Page</title>
+
+  <%= stylesheet_link_tag 'lead' %>
+</head>
+
+<body>
+  <h1>Leads</h1>
+
+  <%= form_tag leads_path, method: :get, remote: true, id: 'leads-filter-form' do %>
+    <div>
+      <%= label_tag 'category', 'Category:' %>
+      <%= select_tag :category, options_from_collection_for_select(Category.all, 'id', 'name', params[:category]), prompt: 'All' %>
+
+      <%= label_tag 'size', 'Size:' %>
+      <%= select_tag :size, options_for_select(['1-10', '11-100', '101-1000'], params[:size]), prompt: 'All' %>
+
+      <%= label_tag 'status', 'CM Status:' %>
+      <%= select_tag :status, options_from_collection_for_select(Status.all, 'id', 'name', params[:status]), prompt: 'All' %>
+      
+      <%= label_tag 'exclusive_for_product_id', 'Exclusive For:' %>
+      <%= select_tag :exclusive_for_product_id, options_from_collection_for_select(Product.all, 'id', 'name', params[:exclusive_for_product_id]), prompt: 'All' %>
+    </div>
+
+    <%= hidden_field_tag :reset_sorting, nil, id: 'reset-sorting-field' %>
+
+    <div class="btn">
+      <div class="innerBtn">
+        <%= button_tag 'Apply Filter', class: 'resetBtn'  %>
+        <%= button_tag 'Reset Filters', type: 'button', onclick: 'resetFilters()', class: 'resetBtn' %>
+      
+      <%= button_tag 'Reset Sorting', type: :submit, form: 'leads-filter-form', class: 'btn btn-primary', onclick: 'document.getElementById("reset-sorting-field").value="true"; document.getElementById("leads-filter-form").submit();' %>
+
+        <p>Total Results: <%= @leads.size %></p>
+      </div>
+
+      <div class="search_pan">
+      <%= text_field_tag :search, params[:search], placeholder: 'Enter search terms' %>
+      <%= label_tag 'search', '🔍'%>
+    </div>
+    </div>
+  <% end %>
+
+  <div class="list_table">
+  <table>
+  <tr>
+    <th>Category</th>
+    <th>Source</th>
+    <th>Size</th>
+    <th>Company Name</th>
+    <th>Date</th>
+    <th>Type</th>
+    <th>Campaign</th>
+    <th>CM status</th>
+    <th>BTTC</th>
+    <th>TZ</th>
+    <th>Exclusive For</th>
+    <th>Name</th>
+  </tr>
+
+  <% @leads.each do |lead| %>
+    <tr>
+      <td><%= lead.category.name %></td>
+      <td><%= lead.source %></td>
+      <td><%= lead.size %></td>
+      <td><%= lead.company_name %></td>
+      <td><%= lead.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+      <td><%= lead.type.name %></td>
+      <td><%= lead.campaign %></td>
+      <td><%= lead.status.name %></td>
+      <td><%= lead.bttc %></td>
+      <td><%= lead.timezone %></td>
+      <td><%= lead.product&.name %></td>
+      <td class="lead-column">
+      <% if lead.claimed? %>
+      <span class="lead-name"><%= "#{lead.first_name} #{lead.last_name}" %></span>
+      <% else %>
+      <button class="claim-button" data-lead-id="<%= lead.id %>">Claim</button>
+     <% end %>
+      <button class="expand-button" data-lead-id="<%= lead.id %>">
+      <svg xmlns="http://www.w3.org/2000/svg" height="12" width="12" viewBox="0 0 512 512"><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg>
+      </button>
+        </td>
+          
+        </tr>
+        <tr class="expanded-row" style="display: none;">
+          <td colspan="13">
+            <div class="row" style="display: flex;">
+              <div  style="flex: 1;">
+                <h1>Name: <%= lead.first_name %> <%= lead.last_name %></h1>
+                <ul>
+                  <li>Email: <%= lead.email %></li>
+                  <li>CM status: <%= lead.status.name %></li>
+                  <li>Timezone: <%= lead.timezone %></li>
+                  <li>Company: <%= lead.company_name %></li>
+                  <li>Source: <%= lead.source %></li>
+                  <li>Category: <%= lead.category.name %></li>
+                  <li>Type: <%= lead.type.name %></li>
+                  <li>
+                    Enterprise:
+                    <input type="checkbox" <%= lead.enterprise ? 'checked' : '' %> disabled>
+                  </li>
+                  <li>
+                    Express:
+                    <input type="checkbox" <%= lead.enterprise ? 'checked' : '' %> disabled>
+                  </li>
+                </ul>
+              </div>
+              <div  style="flex: 1;">
+                <%= form_with(model: [lead, lead.notes.build], url: lead_notes_path(lead)) do |form| %>
+                  <%= form.label :author %>
+                  <%= form.text_field :author %>
+
+                  <%= form.label :note %>
+                  <%= form.text_area :note %>
+
+                  <%= form.submit "Add Note" %>
+                <% end %>
+
+                <ul>
+                  <% lead.notes.each do |note| %>
+                    <li><%= note.author %> - <%= note.note %> - <%= note.creation_date %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </td>
+    </tr>
+  <% end %>
+</table>
+  </div>
+
+  <script>
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var searchLabel = document.querySelector('.search_pan label');
+    var searchForm = document.getElementById('leads-filter-form');
+
+    if (searchLabel && searchForm) {
+      searchLabel.addEventListener('click', function () {
+        searchForm.submit();
+      });
+    }
+  });
+
+   document.querySelectorAll('.claim-button').forEach(button => {
+    button.addEventListener('click', async (event) => {
+      event.preventDefault();
+      const leadId = button.dataset.leadId;
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+      try {
+        const response = await fetch(`/leads/${leadId}/claim`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken,
+          },
+        });
+
+        if (response.ok) {
+          const row = button.parentElement.parentElement;
+          row.style.backgroundColor = '';
+
+          button.style.display = 'none';
+
+          const leadNameElement = document.createElement('div');
+          leadNameElement.className = 'lead-name';
+          const leadDetails = await fetch(`/leads/${leadId}`);
+          const leadDetailsData = await leadDetails.json();
+          leadNameElement.innerText = `${leadDetailsData.first_name} ${leadDetailsData.last_name}`;
+          
+          row.querySelector('.lead-column').appendChild(leadNameElement);
+
+          console.log('Lead claimed successfully!');
+        } else {
+          console.error('Lead claim failed:', response.statusText);
+        }
+      } catch (error) {
+        console.error('An error occurred during lead claim:', error);
+      }
+    });
+  });
+
+    document.querySelectorAll('.expand-button').forEach(button => {
+      button.addEventListener('click', async () => {
+        const row = button.parentElement.parentElement.nextElementSibling;
+
+        row.style.display = row.style.display === 'none' ? '' : 'none';
+
+        if (row.style.display !== 'none') {
+          const leadId = button.dataset.leadId;
+          const expandedRowContent = row.querySelector('.expanded-row-content');
+
+          const response = await fetch(`/leads/${leadId}`);
+          const leadDetails = await response.text();
+
+          expandedRowContent.innerHTML = leadDetails;
+        }
+      });
+    });
+
+    function resetFilters() {
+      document.getElementById('leads-filter-form').reset();
+      document.getElementById('reset-sorting-field').value = 'true';
+      document.getElementById('leads-filter-form').submit();
+    }
+  </script>
+</body>
+</html>

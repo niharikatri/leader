@@ -1,0 +1,99 @@
+table,
+tr,
+td,
+th {
+    border: 1px solid #bdc3c7;
+    border-collapse: collapse;
+    padding-inline: 10px;
+    padding-block: 5px;
+    border-radius: 2px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+table {
+    width: 98%;
+}
+
+.btn {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+
+}
+
+.innerBtn {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.resetBtn {
+    background-color: #337AB7;
+    color: white;
+    border: none;
+    padding-inline: 15px;
+    padding-block: 7px;
+    border-radius: 2px;
+}
+
+.btn-primary{
+padding-block: 7px;
+text-decoration: none;
+color: white;
+background-color: #337AB7;
+padding-inline: 15px;
+font-size: 13px;
+font-family: Arial, Helvetica, sans-serif;
+border: none;
+}
+
+.search_pan {
+    border: 1px solid black;
+    padding-block: 7px;
+    padding-left: 12px;
+    border-radius: 2px;
+}
+
+input#search {
+    border: none;
+    padding-right: 50px;
+}
+
+.search_pan label {
+    background-color: #1970b7;
+    padding-block: 8px;
+    padding-inline: 10px;
+    border: none;
+}
+
+button.claim-button {
+    padding-inline: 30px;
+    padding-block: 5px;
+    background-color: #1970b7;
+    border: none;
+    color: white;
+    font-size: 12px;
+    border-radius: 2px;
+    position: relative;
+}
+
+.list_table{
+    padding-top: 20px;
+}
+
+.table_btn{
+    display: flex;
+    border: none;
+}
+.expand-button {
+    background-color: none;
+    background: none;
+    border: none;
+    position: absolute;
+    right: 5px;
+}
+
+.lead-name{
+    color: #337AB7;
+}

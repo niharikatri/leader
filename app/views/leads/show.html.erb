@@ -1,0 +1,36 @@
+<h1><%= @lead.first_name %> <%= @lead.last_name %></h1>
+
+<p>
+  <strong>Category:</strong> <%= @lead.category.name %><br>
+  <strong>Source:</strong> <%= @lead.source %><br>
+  <strong>Size:</strong> <%= @lead.size %><br>
+</p>
+
+<%= link_to 'Back to Leads', leads_path %>
+
+<%= form_with(model: [@lead, @lead.notes.build], url: lead_notes_path(@lead)) do |form| %>
+  <div>
+    <%= form.label :author %>
+    <%= form.text_field :author %>
+  </div>
+
+  <div>
+    <%= form.label :note %>
+    <%= form.text_area :note %>
+  </div>
+
+  <div>
+    <%= form.submit "Add Note" %>
+  </div>
+<% end %>
+
+<h2>Notes</h2>
+<ul>
+  <% @lead.notes.each do |note| %>
+    <li>
+      <strong><%= note.author %>:</strong> <%= note.note %> - <%= note.creation_date %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to 'Add Note', new_lead_note_path(@lead), remote: true %>
